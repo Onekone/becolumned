@@ -908,18 +908,22 @@ t += 'power gems score: ' + string(_stat_powerGems[level]) + '#';
 t += 'time taken: ' + string_time(_stat_time[level]) + '#';
 t += 'moves: ' + string(_stat_moves[level]) + '#';
 
-t += 'best move: ' + string(_stat_bestMove) + '#';
+//t += 'best move: ' + string(_stat_bestMove) + '#';
 t += 'longest chain: ' + string(_stat_longestChain) + '#';
 t += 'biggest cascade: ' + string(_stat_biggestCascade) + '#';
 t += 'most colors: ' + string(_stat_mostColors) + '#';
 
+if (_stat_moves[0] &lt; 2) {
 t = 'left &amp; right - shift horizontally'+'#'
 t += 'up - hard drop'+'#'
 t += 'down - soft drop'+'#'
 t += 'space &amp; shift - cycle up &amp; down'+'#'
 t += 'mouse wheel click - (debug) prime gems to detonate'+'#'
+t += 'mouse wheel click - (debug) prime gems to detonate'+'#'
+t += 'make matches of 3 or more gems'+'#'
+t += 'vertically, horizontally and diagonally'+'#'
 t += 'you lose when you overflow'+'#'
-
+}
  draw_set_halign(fa_left) draw_set_valign(fa_bottom) draw_set_font(font0)
  draw_text(x+(gridWidth+0.25)*scale,y+gridHeight*scale,t);
  
