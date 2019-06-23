@@ -913,6 +913,13 @@ t += 'longest chain: ' + string(_stat_longestChain) + '#';
 t += 'biggest cascade: ' + string(_stat_biggestCascade) + '#';
 t += 'most colors: ' + string(_stat_mostColors) + '#';
 
+t = 'left &amp; right - shift horizontally'
+t += 'up - hard drop'
+t += 'down - soft drop'
+t += 'space &amp; shift - cycle up &amp; down'
+t += 'mouse wheel click - (debug) prime gems to detonate'
+t += 'you lose when you overflow'
+
  draw_set_halign(fa_left) draw_set_valign(fa_bottom) draw_set_font(font0)
  draw_text(x+(gridWidth+0.25)*scale,y+gridHeight*scale,t);
  
