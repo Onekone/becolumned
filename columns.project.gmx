@@ -3,7 +3,7 @@
   <Configs name="configs">
     <Config>Configs\Default</Config>
   </Configs>
-  <datafiles number="10" name="datafiles">
+  <datafiles number="30" name="datafiles">
     <datafile>
       <name>index.html</name>
       <exists>-1</exists>
@@ -21,7 +21,7 @@
       </ConfigOptions>
       <filename>index.html</filename>
     </datafile>
-    <datafiles number="10" name="music">
+    <datafiles number="30" name="music">
       <datafile>
         <name>Bejeweled3_suite.it</name>
         <exists>-1</exists>
@@ -39,8 +39,76 @@
         </ConfigOptions>
         <filename>Bejeweled3_suite.it</filename>
       </datafile>
+      <datafile>
+        <name>intro.it</name>
+        <exists>-1</exists>
+        <size>9033606</size>
+        <exportAction>2</exportAction>
+        <exportDir></exportDir>
+        <overwrite>0</overwrite>
+        <freeData>-1</freeData>
+        <removeEnd>0</removeEnd>
+        <store>0</store>
+        <ConfigOptions>
+          <Config name="Default">
+            <CopyToMask>9223372036854775807</CopyToMask>
+          </Config>
+        </ConfigOptions>
+        <filename>intro.it</filename>
+      </datafile>
+      <datafile>
+        <name>main_menu.it</name>
+        <exists>-1</exists>
+        <size>9033612</size>
+        <exportAction>2</exportAction>
+        <exportDir></exportDir>
+        <overwrite>0</overwrite>
+        <freeData>-1</freeData>
+        <removeEnd>0</removeEnd>
+        <store>0</store>
+        <ConfigOptions>
+          <Config name="Default">
+            <CopyToMask>9223372036854775807</CopyToMask>
+          </Config>
+        </ConfigOptions>
+        <filename>main_menu.it</filename>
+      </datafile>
+      <datafile>
+        <name>lightning.it</name>
+        <exists>-1</exists>
+        <size>9033902</size>
+        <exportAction>2</exportAction>
+        <exportDir></exportDir>
+        <overwrite>0</overwrite>
+        <freeData>-1</freeData>
+        <removeEnd>0</removeEnd>
+        <store>0</store>
+        <ConfigOptions>
+          <Config name="Default">
+            <CopyToMask>9223372036854775807</CopyToMask>
+          </Config>
+        </ConfigOptions>
+        <filename>lightning.it</filename>
+      </datafile>
+      <datafile>
+        <name>gameover.it</name>
+        <exists>-1</exists>
+        <size>9033609</size>
+        <exportAction>2</exportAction>
+        <exportDir></exportDir>
+        <overwrite>0</overwrite>
+        <freeData>-1</freeData>
+        <removeEnd>0</removeEnd>
+        <store>0</store>
+        <ConfigOptions>
+          <Config name="Default">
+            <CopyToMask>9223372036854775807</CopyToMask>
+          </Config>
+        </ConfigOptions>
+        <filename>gameover.it</filename>
+      </datafile>
     </datafiles>
-    <datafiles number="10" name="js">
+    <datafiles number="30" name="js">
       <datafile>
         <name>chiptune9.js</name>
         <exists>-1</exists>
@@ -59,11 +127,32 @@
         <filename>chiptune9.js</filename>
       </datafile>
     </datafiles>
+    <datafile>
+      <name>libmodplug_dylib.zip</name>
+      <exists>-1</exists>
+      <size>299047</size>
+      <exportAction>2</exportAction>
+      <exportDir></exportDir>
+      <overwrite>0</overwrite>
+      <freeData>-1</freeData>
+      <removeEnd>0</removeEnd>
+      <store>0</store>
+      <ConfigOptions>
+        <Config name="Default">
+          <CopyToMask>9223372036854775807</CopyToMask>
+        </Config>
+      </ConfigOptions>
+      <filename>libmodplug_dylib.zip</filename>
+    </datafile>
   </datafiles>
   <NewExtensions>
     <extension index="0">extensions\Extension1</extension>
+    <extension index="1">extensions\LibModPlug</extension>
   </NewExtensions>
   <sounds name="sound">
+    <sound>sound\snd_transition</sound>
+    <sound>sound\snd_badgefall</sound>
+    <sound>sound\snd_badge</sound>
     <sound>sound\snd_gameover_explosion</sound>
     <sound>sound\snd_gameover_tremble</sound>
     <sound>sound\gem_hit</sound>
@@ -98,8 +187,22 @@
       <sound>sound\snd_speed8</sound>
       <sound>sound\snd_speed9</sound>
     </sounds>
+    <sounds name="voice">
+      <sound>sound\voice_go</sound>
+      <sound>sound\voice_gameover</sound>
+      <sound>sound\voice_timeup</sound>
+      <sound>sound\voice_questcomplete</sound>
+      <sound>sound\voice_nomoremoves</sound>
+    </sounds>
+    <sound>sound\snd_button_press</sound>
+    <sound>sound\snd_button_leave</sound>
+    <sound>sound\snd_button_hover</sound>
+    <sound>sound\snd_button_release</sound>
+    <sound>sound\snd_hypercube_blam</sound>
+    <sound>sound\snd_hypercube_awarded</sound>
   </sounds>
   <sprites name="sprites">
+    <sprite>sprites\ui_button</sprite>
     <sprite>sprites\ui_next</sprite>
     <sprite>sprites\spr_board_top</sprite>
     <sprite>sprites\spr_board_bottom2</sprite>
@@ -107,25 +210,65 @@
     <sprite>sprites\ui_scoreboard</sprite>
     <sprite>sprites\sprite8</sprite>
     <sprites name="UI">
+      <sprite>sprites\ui_badgeranks</sprite>
+      <sprite>sprites\ui_badges</sprite>
       <sprites name="Game Over">
         <sprite>sprites\ui_gameover_plague</sprite>
         <sprite>sprites\ui_gameover_stamp</sprite>
+        <sprite>sprites\ui_lightbox</sprite>
+        <sprite>sprites\ui_darkbox</sprite>
+        <sprite>sprites\ui_smallbutton</sprite>
+        <sprite>sprites\ui_largebutton</sprite>
+      </sprites>
+      <sprite>sprites\ui_tooltip</sprite>
+      <sprite>sprites\sprite22</sprite>
+      <sprite>sprites\ui_dialog</sprite>
+      <sprite>sprites\ui_flag</sprite>
+      <sprites name="Blitz">
+        <sprite>sprites\ui_blitz_megashard</sprite>
+        <sprite>sprites\ui_blitz_shards</sprite>
+        <sprite>sprites\ui_blitz_timer</sprite>
+        <sprite>sprites\ui_blitz_score</sprite>
+        <sprite>sprites\ui_blitz_shards_glow</sprite>
+        <sprite>sprites\ui_blitz_cuff</sprite>
       </sprites>
     </sprites>
     <sprite>sprites\sprite2</sprite>
     <sprite>sprites\sprite1</sprite>
+    <sprite>sprites\sprite29</sprite>
     <sprites name="gems">
       <sprite>sprites\spr_gem_animated</sprite>
       <sprite>sprites\spr_gem_ghost</sprite>
       <sprite>sprites\spr_gem</sprite>
+      <sprite>sprites\spr_gems_flash</sprite>
+      <sprite>sprites\sprite27</sprite>
+    </sprites>
+    <sprites name="rules">
+      <sprite>sprites\sprite20</sprite>
+      <sprite>sprites\sprite21</sprite>
     </sprites>
   </sprites>
   <backgrounds name="background">
+    <background>background\background5</background>
     <background>background\backgroundPlayer1</background>
     <background>background\backgroundTiles1</background>
     <background>background\bg_tile</background>
     <background>background\background6</background>
-    <background>background\background4</background>
+    <background>background\background7</background>
+    <background>background\background9</background>
+    <backgrounds name="backgrounds">
+      <background>background\bg1</background>
+      <background>background\bg2</background>
+      <background>background\bg3</background>
+      <background>background\bg4</background>
+      <background>background\bg5</background>
+      <background>background\bg6</background>
+      <background>background\bg7</background>
+      <background>background\bg10</background>
+      <background>background\bg8</background>
+      <background>background\bg9</background>
+      <background>background\bg11</background>
+    </backgrounds>
   </backgrounds>
   <paths name="paths"/>
   <scripts name="scripts">
@@ -133,36 +276,83 @@
     <script>scripts\gem_check.gml</script>
     <script>scripts\inside.gml</script>
     <script>scripts\wrap.gml</script>
-    <script>scripts\draw_gem.gml</script>
-    <script>scripts\draw_nine.gml</script>
     <script>scripts\string_time.gml</script>
+    <script>scripts\string_time_short.gml</script>
+    <scripts name="MOD_Player">
+      <script>scripts\MOD_LoadSong.gml</script>
+      <script>scripts\MOD_Play.gml</script>
+      <script>scripts\MOD_Pause.gml</script>
+      <script>scripts\MOD_Stop.gml</script>
+      <script>scripts\MOD_GetName.gml</script>
+      <script>scripts\MOD_GetLength.gml</script>
+      <script>scripts\MOD_GetTempo.gml</script>
+      <script>scripts\MOD_SetTempo.gml</script>
+      <script>scripts\MOD_NumChannels.gml</script>
+      <script>scripts\MOD_MuteChannel.gml</script>
+    </scripts>
+    <scripts name="graphics">
+      <script>scripts\draw_gem.gml</script>
+      <script>scripts\draw_nine.gml</script>
+      <script>scripts\scr_back.gml</script>
+      <script>scripts\draw_small_button.gml</script>
+      <script>scripts\draw_large_button.gml</script>
+      <script>scripts\draw_checkbox.gml</script>
+    </scripts>
+    <script>scripts\in_range.gml</script>
+    <script>scripts\load_options.gml</script>
+    <script>scripts\scr_badgeinit.gml</script>
+    <scripts name="game logic">
+      <script>scripts\grid_scoring.gml</script>
+      <script>scripts\grid_badgesCounting.gml</script>
+      <script>scripts\grid_soundSelector.gml</script>
+    </scripts>
   </scripts>
   <fonts name="fonts">
     <font>fonts\font0</font>
+    <font>fonts\fontMedium</font>
     <font>fonts\font1</font>
     <font>fonts\font2</font>
     <font>fonts\titleFont</font>
   </fonts>
   <objects name="objects">
     <objects name="Interface">
-      <object>objects\ui_score</object>
-      <object>objects\ui_nextpiece</object>
+      <object>objects\obj_controller</object>
       <object>objects\ui_cascades</object>
       <object>objects\tooltip_score</object>
     </objects>
     <objects name="Gameplay objects">
+      <object>objects\obj_hypercube</object>
       <object>objects\obj_gem</object>
       <object>objects\obj_grid</object>
+      <object>objects\obj_quest</object>
+      <objects name="quests">
+        <object>objects\obj_blitz</object>
+        <object>objects\obj_normal</object>
+      </objects>
     </objects>
     <objects name="Particles and fluff">
+      <object>objects\obj_matchedgems</object>
       <object>objects\obj_flyinggem</object>
     </objects>
     <objects name="Menu objects">
       <object>objects\obj_gameover</object>
+      <object>objects\obj_button</object>
+      <object>objects\obj_transition</object>
+      <object>objects\obj_mainmenu</object>
+      <object>objects\obj_postgame</object>
+      <object>objects\obj_options</object>
+      <object>objects\obj_badges</object>
+    </objects>
+    <objects name="MOD_Player">
+      <object>objects\obj_mod_player</object>
     </objects>
   </objects>
   <rooms name="rooms">
-    <room>rooms\room0</room>
+    <room>rooms\room_normalmode</room>
+    <room>rooms\room_blitzmode</room>
+    <room>rooms\room_mainmenu</room>
+    <room>rooms\room4</room>
+    <room>rooms\room2</room>
   </rooms>
   <help>
     <rtf>help.rtf</rtf>

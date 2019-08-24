@@ -34,7 +34,7 @@ invulnerable = 0; // should persist when deleting
                   // -1 is hyper cube
      special = 0; // special type of the gem
                   // unused for columns; maybe later, for bejeweled
-                  
+       stop  = 0;          
         vsp  = 0;   // vertical speed
         grv  = 0.75; // gravity acceleration
      vspMax  = 18;  // vertical speed cap
@@ -80,11 +80,20 @@ case 5: c = $FF00FF; break;
 default: c = $FFFFFF; break;
 }
  effect_create_above(ef_firework,x+26,y+26,2,c);
- */               
+ */ 
+ 
+if destroyed {
+    p = instance_create(x,y,obj_matchedgems);
+    p.color = color;
+}
+
 if (!gridLocked and grid&gt;0) {
     grid.movingGems--;
-    if gridX&gt;0 and gridY&gt;0
+    
+    
+    if gridX&gt;=0 and gridY&gt;=0 {
     grid.grid[gridX,gridY] = noone;
+    }
 }
 </string>
           </argument>
@@ -108,7 +117,7 @@ if (!gridLocked and grid&gt;0) {
         <arguments>
           <argument>
             <kind>0</kind>
-            <string>grid.paused</string>
+            <string>grid.paused and stop--&lt;=0</string>
           </argument>
         </arguments>
       </action>
@@ -168,6 +177,67 @@ if ((x &gt;= grid.x and x&lt;grid.x + grid.scale*grid.gridWidth)
           </argument>
         </arguments>
       </action>
+      <action>
+        <libid>1</libid>
+        <id>408</id>
+        <kind>0</kind>
+        <userelative>0</userelative>
+        <isquestion>-1</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>1</exetype>
+        <functionname>action_if</functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>0</kind>
+            <string>grid&gt;0</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>image_alpha = lerp(image_alpha,!grid.paused,0.08);
+</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string></string>
+          </argument>
+        </arguments>
+      </action>
     </event>
     <event eventtype="7" enumb="0">
       <action>
@@ -222,10 +292,11 @@ if ((x &gt;= grid.x and x&lt;grid.x + grid.scale*grid.gridWidth)
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>draw_sprite_stretched(spr_gem,color,x,y,size,size);
-
-//draw_sprite(sprite1,image_index,x,y);
-//draw_sprite(sprite2,image_index,x,y);
+            <string>if color &lt; 0 {
+    draw_sprite_stretched_ext(sprite1,image_index,x,y,size,size,image_blend,image_alpha);
+    draw_sprite_ext(sprite2,image_index,x+size/2,y+size/2,size/160,size/160,0,c_white,image_alpha);
+} else 
+draw_sprite_stretched_ext(spr_gem,color,x,y,size,size,image_blend,image_alpha);
 
 
 </string>

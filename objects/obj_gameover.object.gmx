@@ -28,6 +28,8 @@
             <string>scale = 0;
 
 timer = 300;
+text = "GAME OVER";
+global.song = 'gameover.it';
 </string>
           </argument>
         </arguments>
@@ -50,10 +52,26 @@ timer = 300;
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>scale = lerp(scale,1,0.04)
-
-if timer--&lt;0 {
-    room_restart();
+            <string>if timer--&lt;=0 {
+    scale = lerp(scale,0,0.04)
+    if timer==-60 {
+        p = instance_create(x,y,obj_postgame);
+        highscore_add('Player', Score);
+        p.levels = levels;
+        p.CascadeScore = _stat_cascadeScore;
+        p.ChainScore = _stat_chainsScore;
+        p.ColorScore = _stat_colorScore;
+        p.NormalScore = _stat_normalScore;
+        p.MatchesScore = _stat_matchesScore;
+        
+        p.timer = timeTotal;
+        p.bestMove = bestMove;
+        p.cascade = cascade;
+        p.chain = chain;
+        p.Score = Score;
+    }
+} else {
+    scale = lerp(scale,1,0.04)
 };
 </string>
           </argument>
@@ -79,8 +97,8 @@ if timer--&lt;0 {
             <kind>1</kind>
             <string>draw_set_halign(fa_center)draw_set_valign(fa_middle)draw_set_font(titleFont);
 
-draw_text_transformed_colour(x+3,y+3,'GAME OVER',clamp(scale,0,1),clamp(scale,0,1),0,0,0,0,0,1)
-draw_text_transformed_colour(x,y,'GAME OVER',clamp(scale,0,1),clamp(scale,0,1),0,c_red,c_red,c_red,c_red,1)
+draw_text_transformed_colour(x+3,y+3,text,clamp(scale,0,1),clamp(scale,0,1),0,0,0,0,0,1)
+draw_text_transformed_colour(x,y,text,clamp(scale,0,1),clamp(scale,0,1),0,c_red,c_red,c_red,c_red,1)
 
 </string>
           </argument>

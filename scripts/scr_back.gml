@@ -1,0 +1,11 @@
+///scr_back(sprite,x,y,w,h,border)
+var _s = argument0, _x = argument1, _y = argument2, _w = argument3, _h = argument4, _border = argument5;
+draw_sprite(_s,0,_x,_y)
+draw_sprite(_s,2,_x+_w+_border,_y)
+draw_sprite(_s,6,_x,_y+_h+_border)
+draw_sprite(_s,8,_x+_w+_border,_y+_h+_border)
+draw_sprite_stretched(_s,1,_x+_border,_y,_h,_border)
+draw_sprite_stretched(_s,7,_x+_border,_y+_h+_border,_w,_border)
+draw_sprite_stretched(_s,3,_x,_y+_border,_border,_h)
+draw_sprite_stretched(_s,5,_x+_w+_border,_y+_border,_border,_h)
+draw_sprite_stretched(_s,4,_x+_border,_y+_border,_w,_h)

@@ -25,6 +25,63 @@
         <arguments>
           <argument>
             <kind>1</kind>
+            <string>gameMode = gamemode_normal;
+
+keepScore = true;
+
+gameoverMessage = voice_gameover;
+gameoverText = "GAME OVER";
+</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>/// SCORE
+hud_Score = 0;
+hud_Level = 0;
+level_pulse = 0;
+
+hud_chains = 0;
+hud_chain_pulse = 0;
+hud_chain_target = 0;
+hud_chain_speed = 0;
+
+hud_hypercube_blink = 0;
+</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
             <string> Score = 0;
  multiplier = 0;
 
@@ -34,16 +91,22 @@
  gridYOffset = 3;
  gridHeight = 16;
  
- for(var i=0;i&lt;gridWidth;i++) 
+ for(var i=0;i&lt;gridWidth;i++) {
+ lockHeight[i] = -1;
     for(var j=0;j&lt;gridHeight;j++)
         grid[i,j] = noone;
+    }
  
  scale = 79;
  
  defaultXPos = 3;
  
- state = state_crumble;
+ state = state_gamestart;
  previousState = state;
+ 
+ gameStartTimer = 120;
+ gameStartScale = 0;
+ gameStartScaleTarget = 0;
  
  pieceShift = 0;
  
@@ -69,6 +132,13 @@
  colorPallete[4] = $ff0000;
  colorPallete[5] = $ff00ff;
  colorPallete[6] = $ffffff; 
+ colorPalleteI[0] = $ff0000;
+ colorPalleteI[1] = $ff8800;
+ colorPalleteI[2] = $ffff00;
+ colorPalleteI[3] = $00ff00;
+ colorPalleteI[4] = $0000ff;
+ colorPalleteI[5] = $ff00ff;
+ colorPalleteI[6] = $ffffff; 
  
  pauseTimer = 0;
  paused = false;
@@ -78,6 +148,9 @@
  hypercubeThreshold = 100;
  
  movingGems = 0;
+ 
+ bgFade = 0;
+ bgFadeTarget = 0;
 
  gems  = 0;     // gems in a cascade
  cascades = 0;  // cascade count
@@ -87,6 +160,8 @@
  
  gemsNextLevel = 40;
  gemsPerLevel = 40;
+ 
+ gemAlpha = 1;
 
  breakdown = 0;
  
@@ -114,7 +189,9 @@
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>gameover_explode = 120;
+            <string>background_index[1] = choose(bg1,bg2,bg3,bg4,bg5,bg6,bg7,bg8,bg9,bg10,bg11);
+
+gameover_explode = 120;
 
 hud_levelbar = 0;
 
@@ -134,7 +211,7 @@ _stat_bestMove = 0;
 _stat_longestChain = 0;
 _stat_biggestCascade = 0;
 _stat_mostColors = 0;
-
+_stat_moveScore = 0;
 
 _stat_timeTotal = 0;
 </string>
@@ -159,7 +236,36 @@ _stat_timeTotal = 0;
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>p = instance_nearest(x,y,ui_score);
+            <string>if hud_Score&lt;Score
+hud_Score = ceil(lerp(hud_Score,Score,1/20));
+else
+hud_Score = floor(lerp(hud_Score,Score,1/20));
+
+if hud_Level != level
+{
+    hud_Level = level;
+    level_pulse = 1;
+}
+if level_pulse&gt;0
+level_pulse -= 1/180;
+
+
+if chains &gt; 0 {
+ if hud_chains != chains {
+    hud_chains = chains;
+    hud_chain_pulse = 1+min(chains*0.05,0.33);
+ }
+ hud_chain_target = 1;
+ hud_chain_pulse = max(lerp(hud_chain_pulse,1,0.05),1);
+} else {
+ if hud_chain_target==1 {hud_chain_target = 0; hud_chain_speed = -0.02;}
+
+ hud_chain_speed += 0.000625;
+ hud_chain_pulse = clamp(hud_chain_pulse+sign(hud_chain_target-hud_chain_pulse)*hud_chain_speed,0,1.33); 
+}
+
+
+/*p = instance_nearest(x,y,ui_score);
 p.Score = Score;
 p.Level = level;
 
@@ -167,6 +273,10 @@ p = instance_nearest(x,y,ui_nextpiece);
 for(i=0;i&lt;3;i++){
  p.piece[i] =  piecesNext[i];
 }
+
+bgFade = lerp(bgFade,bgFadeTarget,0.04);
+
+gemAlpha = lerp(gemAlpha,!paused,0.08)
 </string>
           </argument>
         </arguments>
@@ -226,7 +336,13 @@ for(i=0;i&lt;3;i++){
             <string>if (state != state_gameover) {
     _stat_time[level]++;
     _stat_timeTotal++;
+    bgFade = lerp(bgFade,0,0.04);
+} else {
+    bgFade = lerp(bgFade,1,0.08);
 }
+
+hud_hypercube_blink = lerp(hud_hypercube_blink,0,0.04)   
+gameStartScale = lerp(gameStartScale,gameStartScaleTarget,0.16);
 </string>
           </argument>
         </arguments>
@@ -248,11 +364,59 @@ for(i=0;i&lt;3;i++){
           <argument>
             <kind>1</kind>
             <string>if previousState != state {
+    _stat_bestMove = max(_stat_bestMove,Score-_stat_moveScore);
     previousState = state;
-    
     switch (state) {
+        case state_play:
+            failed = false;
+            cleared = false;
+            timedout = false;
+            with obj_quest {
+                if (grid == other.id) {
+                    other.cleared = cleared;
+                    other.failed = failed;
+                    if (timer==0) {
+                        other.timedout = true;
+                    }
+                }
+            }
+            if failed || cleared || timedout {
+                state = state_gameover;
+                if timedout {
+                    gameoverMessage = voice_timeup;
+                    gameoverText = "TIME UP";
+                }
+                if cleared {
+                    gameoverMessage = voice_questcomplete;
+                    gameoverText = 'QUEST COMPLETE'
+                }
+            }
+            break;
+        case state_crumble:
+            _stat_moveScore = Score;
+            break;
         case state_gameover: 
-            
+        
+                audio_play_sound(gameoverMessage,0,0);
+                bgFadeTarget = 1;
+                t = instance_create(
+                    x+gridWidth/2*scale,
+                    y+gridYOffset*scale+(gridHeight-gridYOffset)/2*scale,
+                    obj_gameover
+                );
+                t.text = gameoverText;
+                t.timeTotal = string_time(_stat_timeTotal);
+                t.bestMove = _stat_bestMove;
+                t.cascade = _stat_biggestCascade;
+                t.chain = _stat_longestChain;
+                t.Score = Score;
+                t.levels = level+1
+                t._stat_cascadeScore = _stat_cascadeScore;
+                t._stat_chainsScore = _stat_chainsScore;
+                t._stat_colorScore = _stat_colorScore;
+                t._stat_matchesScore = _stat_matchesScore;
+                t._stat_normalScore = _stat_normalScore;
+                
            with (obj_gem) {
                 p = instance_create(x,y,obj_flyinggem);
                 p.c = color;
@@ -318,10 +482,10 @@ for(i=0;i&lt;3;i++){
             <kind>1</kind>
             <string>/// levelling up
 
-if gemsTotal &gt; gemsNextLevel {
+if gemsTotal &gt;= gemsNextLevel {
 
     level++;
-    
+    MOD_SetTempo(125+min(40*(level/20),70));    
     _stat_cascadeScore[level] = 0;
     _stat_chainsScore[level] = 0;
     _stat_colorScore[level] = 0;
@@ -419,7 +583,7 @@ pieceHorRepeat--;
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>spd = 1/max(2,50-level);
+            <string>spd = 1/max(2,25-level);
 if key_softdrop {spd = 1/2;}
 
 if pieceEntryDelay &lt;= 0
@@ -433,6 +597,7 @@ if pieceEntryDelay &lt;= 0
             effect_create_above(ef_spark,x+(pieceX+1)*scale+random_range(-t,t),y+i*scale,0,c_white)
         }
         Score+= ceil(ghostY-pieceY)*2;
+        _stat_normalScore[level]+= ceil(ghostY-pieceY)*2;
         pieceY = ghostY;
 //        audio_play_sound(snd_harddrop,0,0);
         pieceLockDelay = 0;
@@ -442,13 +607,35 @@ if pieceEntryDelay &lt;= 0
         pieceY = floor(pieceY);
         if (pieceLockDelay--&lt;=0) {
             _stat_moves[level]++;
+            if (!hypercube) {
             for(i=0;i&lt;3;i++) {
               p = instance_create(x+scale*floor(pieceX),y+scale*floor(pieceY-wrap(pieceShift+i,3)),obj_gem);
+              p.grid = id;
               p.color = piecesFalling[i];
               }
+            } else {
+              hypercube = false;
+              pauseTimer = max(pauseTimer,6);
+              g = noone;
+              if floor(pieceY)+1 &lt; gridHeight {
+                g = grid[pieceX,floor(pieceY)+1];
+              }
+             
+              p = instance_create(x+scale*floor(pieceX),y+scale*floor(pieceY),obj_hypercube);
+              p.size = scale;
+              p.grid = id;
+              if instance_exists(g) {
+                p.color = g.color;
+              }
+              
+            }
+            if (!hypercubeNext) {        
             for(i=0;i&lt;3;i++) {
               piecesFalling[i] =  piecesNext[i];
               piecesNext[i] = irandom(54) mod 6;
+            }} else {
+                hypercubeNext = false;
+                hypercube = true;
             }
             pieceEntryDelay = pieceEntryDelayBase;
             pieceLockDelay = pieceLockDelayBase;
@@ -459,7 +646,7 @@ if pieceEntryDelay &lt;= 0
             state = state_crumble;      
         }
     } else {
-      if key_softdrop Score++;
+      if key_softdrop {_stat_normalScore[level]++; Score++;}
     }
 } else {
 pieceEntryDelay--;
@@ -558,97 +745,88 @@ pieceEntryDelay--;
             }
         colors = 0;
     }
-
+    // Delete matched gems
     while !ds_stack_empty(stackDelete) {
         var deletedGem = ds_stack_pop(stackDelete);
         if instance_exists(deletedGem) and !deletedGem.invulnerable and !deletedGem.destroyed {
+            // Mark the gem for destroy animation
+            deletedGem.destroyed = true;
+            // Add color to the counter
             if deletedGem.color&gt;=0
-            c[deletedGem.color] += 1;
+                c[deletedGem.color] += 1;
+            // Mark the column for restacking    
             lockHeight[deletedGem.gridX] = max(lockHeight[deletedGem.gridX],deletedGem.gridY);
+            // Free the spot
             grid[deletedGem.gridX,deletedGem.gridY] = noone;
+            // Delete gem
             instance_destroy(deletedGem);
+            // Add gem to counters
             gems++; gemsInMatch++; gemsTotal++;
         }
     }
     if !stackDeleteAnything {
-        var ct = c_white;
-        for(i=0;i&lt;7;i++) {
-            if c[i]&gt;0 {colors++; ct = colorPallete[i]}
-            }
+        ct = c_white;
+        
+        // Count amount of colors in match
+        for(i=0;i&lt;7;i++) { if c[i]&gt;0 {colors++; ct = colorPallete[i]} }
         if colors &gt; 0 {            
-            totalMultiplier = (chains/3*(chainCount==false)) + (colors-1) + (cascades-1) + (gemsInMatch - 3);
-            sc = (30 + 10*chains*(chainCount==false)) * colors * cascades * (gemsInMatch - 2);            
-            Score += sc * (level+1) * (multiplier + 1);
-            t = instance_create(x+(mean(cellXmin,cellXmax)+0.5)*scale,y+(mean(cellYmin,cellYmax)+0.5)*scale,tooltip_score);
-                t.c = ct;
-                t.text = sc* (level+1) * (multiplier + 1);
-                t.rainbow = colors &gt; 3 or colors*cascades*(gemsInMatch - 2) &gt; 8
-                
-            if (totalMultiplier &gt; 0) {
-                show_debug_message('multiplier');
-                show_debug_message(totalMultiplier);
-                var a = (cascades-1)             / totalMultiplier;
-                var b = (colors-1)               / totalMultiplier;
-                var c = (chains/3*(!chainCount)) / totalMultiplier;
-                var d = (gemsInMatch - 3)        / totalMultiplier;
-                
-                _stat_cascadeScore[level] += (sc-30) * a * (multiplier + 1) * (level+1);
-                _stat_chainsScore[level]  += (sc-30) * c * (multiplier + 1) * (level+1);
-                _stat_colorScore[level]   += (sc-30) * b * (multiplier + 1) * (level+1);
-                _stat_matchesScore[level] += (sc-30) * d * (multiplier + 1) * (level+1);
-            }
-
-            if !chainCount {chains++; chainCount = true; }
-            if colors &gt; 1  {audio_play_sound(snd_double_match,0,0);}
+            // add score
+            grid_scoring();
             
-            switch cascades {
-            case 0: case 1:
-                switch chains {
-                case 0: p = snd_match_1; break;
-                case 1: p = snd_match_1; break;
-                case 2: p = snd_speed2; break;
-                case 3: p = snd_speed3; break;
-                case 4: p = snd_speed4; break;
-                case 5: p = snd_speed5; break;
-                case 6: p = snd_speed6; break;
-                case 7: p = snd_speed7; break;
-                case 8: p = snd_speed8; break;
-                default: p = snd_speed9; break;
-                }            
-            break;
-            case 2: p = snd_match_2; break;
-            case 3: p = snd_match_3; break;
-            case 4: p = snd_match_4; break;                        
-            case 5: p = snd_match_5; break;        
-            default: p = snd_match_6; break;
-            }
-            
-            
-            
-            _stat_normalScore[level]  += 30 * (multiplier + 1) * (level+1);
+            // keep stats
             _stat_mostColors     = max(_stat_mostColors,colors);
             _stat_longestChain   = max(_stat_longestChain,chains);
             _stat_biggestCascade = max(_stat_biggestCascade,cascades);
             
+            // if first match, advance chain counter
+            if !chainCount { 
+                if (++chains == 8) {
+                    hypercubeNext = true;
+                    audio_play_sound(snd_hypercube_awarded,0,false);
+                    hud_hypercube_blink = 1;
+                }; 
+                chainCount = true; 
+            }
+            // if more than one color, play double match sound
+            if colors &gt; 1  { 
+                audio_play_sound(snd_double_match,0,0); 
+            }
+         
+            // keep track of badges   
+            grid_badgesCounting(); 
+            
+            // play match sound         
+            p = grid_soundSelector();
             audio_play_sound(p,0,0);
             }    
         }
     else {
+        // If checked gems but didn't found any matches
         if stackCheckAnything and !breakdown {
+           // Return to play
            state = state_play;
-           if !chainCount chains = 0;
+           // If it isn't a cascade, then it break the chain bonus
+           if !chainCount 
+             chains = 0;
+           // Else stop cascading  
            chainCount = false;
+           
+           // If default position is taken by something, trigger game over by lockdown
            if grid[defaultXPos,gridYOffset-1] != noone {
                state = state_gameover;
                audio_play_sound(snd_gameover_tremble,0,0);
            }
+           
+           // Else break cascade
            cascades = 0; 
            gems = 0; 
         }
     }
     
+    // if gem fall delay passed and there are matching gems
     if pauseTimer&lt;=0 and breakdown {
         breakdown = false;
+        // disconnect gems from grid to let them fall into new positions
         for(i=0;i&lt;gridWidth;i++){
             for(j=0;j&lt;=lockHeight[i];j++) {
                 if instance_exists(grid[i,j]) { grid[i,j].gridLocked = false;     movingGems++;}
@@ -657,7 +835,12 @@ pieceEntryDelay--;
         }
     }
     
-    with obj_gem { checked = false; invulnerable = false; destroyed = false; }
+    // With all remaining gems, reset their state   
+    with obj_gem { 
+        if other.id = grid {
+            checked = false; invulnerable = false; destroyed = false;
+        } 
+    }
 }
 pauseTimer--;
 </string>
@@ -737,11 +920,59 @@ pauseTimer--;
             <string>
 if gameover_explode-- == 0 {
     audio_play_sound(snd_gameover_explosion,0,0);
-    t = instance_create(
-                    x+gridWidth/2*scale,
-                    y+gridYOffset*scale+(gridHeight-gridYOffset)/2*scale,
-                    obj_gameover
-                );
+}
+
+</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>408</id>
+        <kind>0</kind>
+        <userelative>0</userelative>
+        <isquestion>-1</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>1</exetype>
+        <functionname>action_if</functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>0</kind>
+            <string>state = state_gamestart</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>gameStartTimer--
+
+if gameStartTimer == 60 {
+    audio_play_sound(voice_go,0,0);
+    gameStartScaleTarget = 1;
+}
+if gameStartTimer == 1 {   
+    gameStartScaleTarget = 0;
+}
+if gameStartTimer &lt;=0 {
+    state = state_crumble;
 }
 
 </string>
@@ -764,6 +995,26 @@ if gameover_explode-- == 0 {
       </action>
       <action>
         <libid>1</libid>
+        <id>408</id>
+        <kind>0</kind>
+        <userelative>0</userelative>
+        <isquestion>-1</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>1</exetype>
+        <functionname>action_if</functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>-1</isnot>
+        <arguments>
+          <argument>
+            <kind>0</kind>
+            <string>state = state_gameover</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
         <id>603</id>
         <kind>7</kind>
         <userelative>0</userelative>
@@ -780,7 +1031,14 @@ if gameover_explode-- == 0 {
             <kind>1</kind>
             <string>key_pause = keyboard_check_pressed(vk_enter);
 
-if key_pause paused = !paused;
+if key_pause {
+    paused = !paused; 
+    if (paused) {
+        instance_create(x+scale/2*gridWidth,y+scale*(gridYOffset+(gridHeight-gridYOffset)/2),obj_options)
+    } else {
+        instance_destroy(obj_options);
+    }
+}
 
 var t = (gemsNextLevel-gemsTotal)/gemsPerLevel*100;
 
@@ -878,56 +1136,41 @@ with obj_gem {ds_stack_push(other.stackCheck,id)};
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>draw_background_stretched(backgroundPlayer1,x,y+gridYOffset*scale,scale*gridWidth,scale*(gridHeight-gridYOffset));
-c_rainbow = make_colour_hsv(current_time mod 1000 / 1000 * 255,255,255);
+            <string>draw_set_alpha(bgFade*0.75);
+draw_rectangle_colour(0,0,1920,1080,0,0,0,0,0);
+draw_set_alpha(1);
+
+draw_background_stretched(backgroundPlayer1,x,y+gridYOffset*scale,scale*gridWidth,scale*(gridHeight-gridYOffset));
+c_rainbow = make_colour_hsv(current_time mod 1000/1000*255,255,255);
 
  if state==state_play and pieceEntryDelay&lt;=0 {
     if !hypercube {
     for(i=0;i&lt;3;i++) {
-     draw_sprite_stretched(spr_gem_ghost,piecesFalling[i],x+scale*pieceX,y+scale*(ghostY-wrap(pieceShift+i,3)),scale,scale)     
+     draw_sprite_stretched_ext(spr_gem_ghost,piecesFalling[i],x+scale*pieceX,y+scale*(ghostY-wrap(pieceShift+i,3)),scale,scale,c_white,gemAlpha)     
      }
     for(i=0;i&lt;3;i++) {
-     draw_sprite_stretched(spr_gem_animated,piecesFalling[i]*20+(current_time mod 1000 / 1000 * 19.9),x+scale*pieceX,y+scale*(pieceY-piecePos[i]),scale,scale)     
+     draw_sprite_stretched_ext(spr_gem_animated,piecesFalling[i]*20+(current_time mod 1000 / 1000 * 19.9),x+scale*pieceX,y+scale*(pieceY-piecePos[i]),scale,scale,c_white,gemAlpha)     
      }
     } else {
-     draw_sprite_stretched_ext(spr_gem_ghost,7,x+scale*pieceX,y+scale*ghostY,scale,scale,c_rainbow,1);     
-     draw_sprite_stretched(sprite1,piecesFalling[i],x+scale*pieceX,y+scale*pieceY,scale,scale);
-     draw_sprite_stretched(sprite2,piecesFalling[i],x+scale*pieceX,y+scale*pieceY,scale,scale);     
+     draw_sprite_stretched_ext(spr_gem_ghost,6,x+scale*pieceX,y+scale*ghostY,scale,scale,c_rainbow,1);     
+     draw_sprite_stretched(sprite1,current_time mod 4000 / 4000 * 59.9,x+scale*pieceX,y+scale*pieceY,scale,scale);
+     draw_sprite_stretched(sprite2,current_time mod 4000 / 4000 * 59.9,x+scale*pieceX,y+scale*pieceY,scale,scale);     
     }
  }
 
+
  var pScale = (gridWidth+0.1)*scale/1056;
  var vScale = (gridWidth+0.5)*scale/1056;
- 
- t = 'cascade score: ' + string(_stat_cascadeScore[level]) + '#';
- t += 'matches score: ' + string(_stat_chainsScore[level]) + '#';
- t += 'match size score: ' + string(_stat_matchesScore[level]) + '#'; 
-t += 'color score: ' + string(_stat_colorScore[level]) + '#';
-t += 'score: ' + string(_stat_normalScore[level]) + '#';
-t += 'power gems score: ' + string(_stat_powerGems[level]) + '#';
-t += 'time taken: ' + string_time(_stat_time[level]) + '#';
-t += 'moves: ' + string(_stat_moves[level]) + '#';
-
-//t += 'best move: ' + string(_stat_bestMove) + '#';
-t += 'longest chain: ' + string(_stat_longestChain) + '#';
-t += 'biggest cascade: ' + string(_stat_biggestCascade) + '#';
-t += 'most colors: ' + string(_stat_mostColors) + '#';
-
-if (_stat_moves[0] &lt; 2) {
-t = 'left &amp; right - shift horizontally'+'#'
-t += 'up - hard drop'+'#'
-t += 'down - soft drop'+'#'
-t += 'space &amp; shift - cycle up &amp; down'+'#'
-t += 'mouse wheel click - (debug) prime gems to detonate'+'#'
-t += 'mouse wheel click - (debug) prime gems to detonate'+'#'
-t += 'make matches of 3 or more gems'+'#'
-t += 'vertically, horizontally and diagonally'+'#'
-t += 'you lose when you overflow'+'#'
-}
- draw_set_halign(fa_left) draw_set_valign(fa_bottom) draw_set_font(font0)
- draw_text(x+(gridWidth+0.25)*scale,y+gridHeight*scale,t);
- 
- 
+ draw_set_halign(fa_left) draw_set_valign(fa_top); draw_set_font(font0);
+ draw_text(0,30,'state:'+string(state));
+  draw_set_halign(fa_center) draw_set_valign(fa_middle); draw_set_font(titleFont);
+ if gameStartScale&gt;0.02 {
+    draw_text_transformed_colour(x+scale/2*gridWidth+1,y+1+scale*(gridYOffset+(gridHeight-gridYOffset)/2),'GO!',gameStartScale,gameStartScale,0,0,0,0,0,0.75)
+    draw_text_transformed_colour(x+scale/2*gridWidth,y+scale*(gridYOffset+(gridHeight-gridYOffset)/2),'GO!',gameStartScale,gameStartScale,0,c_yellow,c_yellow,c_yellow,c_yellow,1)
+ }
+    draw_text_transformed_colour(x+scale/2*gridWidth+1,y+1+scale*(gridYOffset+(gridHeight-gridYOffset)/2),'PAUSED',1,1,0,0,0,0,0,1-gemAlpha)
+    draw_text_transformed_colour(x+scale/2*gridWidth,y+scale*(gridYOffset+(gridHeight-gridYOffset)/2),'PAUSED',1,1,0,c_aqua,c_aqua,c_aqua,c_aqua,1-gemAlpha)
+    
 draw_sprite_ext(spr_board_top,0,x+scale/2*gridWidth,y+gridYOffset*scale,pScale,pScale,0,c_white,1);
 draw_healthbar(x+0.25*scale,y+gridHeight*scale,x+scale*(gridWidth-0.25),y+gridHeight*scale+40*vScale,100-hud_levelbar,$440044,c_blue,c_blue,0,1,0)
 
@@ -936,6 +1179,29 @@ draw_sprite_ext(spr_board_bottom2,0,x+scale/2*gridWidth,y+gridHeight*scale,vScal
 draw_set_halign(fa_center)draw_set_valign(fa_middle)draw_set_font(font2)
 draw_text_transformed_colour(x+gridWidth/2*scale,y+gridHeight*scale+vScale*20,string(gemsTotal)+' / '+string(gemsNextLevel),vScale,vScale,0,c_white,c_white,c_white,c_white,1);
 
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="9" enumb="114">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>hypercubeNext = true;
 </string>
           </argument>
         </arguments>
